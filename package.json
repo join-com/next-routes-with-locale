@@ -9,10 +9,14 @@
     "lib"
   ],
   "scripts": {
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn test && yarn lint",
+    "preversion": "npm lint",
+    "version": "yarn prettier && git add -A src",
+    "postversion": "git push && git push --tags",
     "lint": "tslint -c tslint.json 'src/**/*.ts' 'src/**/*.tsx'",
     "lint:fix": "yarn lint --fix",
     "build": "del lib/* && tsc -p tsconfig.build.json",
-    "prebuild": "yarn lint && yarn test",
     "test": "jest --forceExit --no-cache --detectOpenHandles",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "ts:check": "tsc --noEmit"
