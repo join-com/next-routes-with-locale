@@ -12,7 +12,7 @@ Based on [Next-Routes](https://github.com/fridays/next-routes) with these change
 Install:
 
 ```bash
-yarn @join-com/next-routes-with-locale
+yarn add @join-com/next-routes-with-locale
 ```
 
 Create `routes.js` inside your project:
