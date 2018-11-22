@@ -23,7 +23,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn ts:check && lint-staged && yarn build && git add ."
+      "pre-commit": "yarn ts:check && lint-staged"
     }
   },
   "lint-staged": {
