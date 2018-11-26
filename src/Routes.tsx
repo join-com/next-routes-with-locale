@@ -36,8 +36,6 @@ interface ExtendedLinkProps extends LinkProps {
 type LinkType = React.SFC<ExtendedLinkProps>
 
 interface ConstructorProps {
-  Link?: any
-  Router?: any
   locale: string
 }
 
