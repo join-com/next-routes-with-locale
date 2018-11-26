@@ -18,28 +18,25 @@ yarn add @join-com/next-routes-with-locale
 Create `routes.js` inside your project:
 
 ```typescript
-import nextRoutes from 'next-routes-with-locale'
+import nextRoutes from '@join-com/next-routes-with-locale'
 
 const routes = nextRoutes({ locale: 'en' })
 
 routes
-.add('about', 'en', '/about')
-.add('blog', 'en', '/blog/:slug')
-.add('blog', 'en', '/blog/:slug', {myCustom: 'data'})
-.add('user', 'en', '/user/:id', 'profile', {myCustom: 'data'})
-.add({name: 'beta', locale: 'en', pattern: '/v3', page: 'v3'})
-.add('about', 'cs', '/o-projektu')
-.add('blog', 'cs', '/blog/:slug')
-.add('user', 'cs', '/uzivatel/:id', 'profile')
-.add({name: 'beta', locale: 'cs', pattern: '/v3', page: 'v3'})
+  .add('about', 'en', '/about')
+  .add('blog', 'en', '/blog/:slug')
+  .add('blog', 'en', '/blog/:slug', { subdomain: true })
+  .add('user', 'en', '/user/:id', 'profile',)
+  .add('about', 'de-ch', '/de-ch/about')
+  .add('blog', 'de-ch', '/de-ch/blog/:slug')
+  .add('user', 'de-ch', '/de-ch/user/:id', 'profile')
 ```
 
 This file is used both on the server and the client.
 
 API:
 
-- `routes.add(name, locale, pattern = /name, page = name, data)`
-- `routes.add(object)`
+- `routes.add(name, locale, pattern = /name, page = name, options)`
 
 Arguments:
 
@@ -47,7 +44,7 @@ Arguments:
 - `locale` - Locale of the route
 - `pattern` - Route pattern (like express, see [path-to-regexp](https://github.com/pillarjs/path-to-regexp))
 - `page` - Page inside `./pages` to be rendered; can be ommited
-- `data` - Custom data object
+- `options` - Options object
 
 The page component receives the matched URL parameters merged into `query`
 
@@ -68,17 +65,19 @@ export default class Blog extends React.Component {
 // server.js
 const next = require('next')
 const routes = require('./routes')
-const app = next({dev: process.env.NODE_ENV !== 'production'})
+const app = next({ dev: process.env.NODE_ENV !== 'production' })
 const handler = routes.getRequestHandler(app)
 
 // With express
 const express = require('express')
 app.prepare().then(() => {
-  express().use(handler).listen(3000)
+  express()
+    .use(handler)
+    .listen(3000)
 })
 
 // Without express
-const {createServer} = require('http')
+const { createServer } = require('http')
 app.prepare().then(() => {
   createServer(handler).listen(3000)
 })
@@ -89,7 +88,7 @@ app.prepare().then(() => {
 Optionally you can pass a custom handler, for example:
 
 ```javascript
-const handler = routes.getRequestHandler(app, ({req, res, route, query}) => {
+const handler = routes.getRequestHandler(app, ({ req, res, route, query }) => {
   app.render(req, res, route.page, query)
 })
 ```
@@ -112,16 +111,16 @@ Import `Link` and `Router` from your `routes.js` file to generate URLs based on 
 
 ```tsx
 // pages/index.js
-import {Link} from '../routes'
+import { Link } from '../routes'
 
 export default () => (
   <div>
     <div>Welcome to Next.js!</div>
-    <Link href='blog' params={{slug: 'hello-world'}}>
+    <Link href="blog" params={{ slug: 'hello-world' }}>
       <a>Hello world</a>
     </Link>
     or
-    <Link href='blog' locale='cs' params={{slug: 'ahoj-svete'}}>
+    <Link href="blog" locale="cs" params={{ slug: 'ahoj-svete' }}>
       <a>Hello world</a>
     </Link>
   </div>
@@ -130,10 +129,10 @@ export default () => (
 
 API:
 
-- `<Link href='name'>...</Link>`
-- `<Link href='name' locale='locale'>...</Link>`
-- `<Link href='name' params={params}> ... </Link>`
-- `<Link href='name' locale='locale' params={params}> ... </Link>`
+- `<Link route="name'>...</Link>`
+- `<Link route="name" locale="locale">...</Link>`
+- `<Link route="name" params={params}> ... </Link>`
+- `<Link route="name" locale="locale" params={params}> ... </Link>`
 
 Props:
 
@@ -147,16 +146,16 @@ It generates the URLs for `href` and `as` and renders `next/link`. Other props l
 ```tsx
 // pages/blog.js
 import React from 'react'
-import {Router} from '../routes'
+import { Router } from '../routes'
 
 export default class Blog extends React.Component {
-  handleClick () {
+  public handleClick() {
     // With route name and params
-    Router.pushRoute('blog', {slug: 'hello-world'})
+    Router.pushRoute('blog', { slug: 'hello-world' })
     // With route name and params and explicit locale
-    Router.pushRoute('blog', {slug: 'hello-world'}, 'en')
+    Router.pushRoute('blog', { slug: 'hello-world' }, 'en')
   }
-  render () {
+  public render() {
     return (
       <div>
         <div>{this.props.url.query.slug}</div>
