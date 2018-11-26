@@ -56,11 +56,11 @@ export default class Route {
     )
   }
 
-  public getHref(params: any = {}) {
+  public getHref(params: object = {}) {
     return `${this.page}?${toQuerystring(params)}`
   }
 
-  public getAs(params: any = {}) {
+  public getAs(params: object = {}) {
     const as = this.toPath(params) || '/'
     const keys = Object.keys(params)
     const qsKeys = keys.filter(key => this.keyNames.indexOf(key) === -1)
@@ -80,7 +80,7 @@ export default class Route {
     return `${as}?${toQuerystring(qsParams)}`
   }
 
-  public getUrls(params: any) {
+  public getUrls(params: object) {
     const as = this.getAs(params)
     const href = this.getHref(params)
     return { as, href }

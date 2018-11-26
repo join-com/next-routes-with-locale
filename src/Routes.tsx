@@ -1,7 +1,8 @@
 import NextLink, { LinkProps } from 'next/link'
 import NextRouter, { SingletonRouter } from 'next/router'
+import { ParsedUrlQuery } from 'querystring'
 import * as React from 'react'
-import { parse } from 'url'
+import { parse, UrlWithParsedQuery } from 'url'
 
 import Route, { Options as RouteOptions } from './Route'
 
@@ -9,9 +10,13 @@ interface NextRouteOptions {
   shallow: boolean
 }
 
+interface Params {
+  [key: string]: string | number
+}
+
 type FnType = (
   route: string,
-  params?: any,
+  params?: Params,
   localeOrOptions?: string | NextRouteOptions,
   options?: NextRouteOptions
 ) => void
@@ -26,7 +31,7 @@ interface ExtendedLinkProps extends LinkProps {
   route: string
   locale?: string
   to?: string
-  params?: any
+  params?: Params
 }
 type LinkType = React.SFC<ExtendedLinkProps>
 
@@ -34,6 +39,13 @@ interface ConstructorProps {
   Link?: any
   Router?: any
   locale: string
+}
+
+interface MatchedRoute {
+  query?: ParsedUrlQuery
+  route?: Route
+  params?: Params
+  parsedUrl: UrlWithParsedQuery
 }
 
 export default class Routes {
@@ -75,15 +87,12 @@ export default class Routes {
 
   public findByName(name: string, locale?: string) {
     locale = locale || this.locale
-    if (name) {
-      return this.routes.filter(
-        route => route.name === name && route.locale === locale
-      )[0]
-    }
-    return undefined
+    return this.routes.filter(
+      item => item.name === name && item.locale === locale
+    )[0]
   }
 
-  public match(url: string) {
+  public match(url: string): MatchedRoute {
     const parsedUrl = parse(url, true)
     const { pathname, query } = parsedUrl
 
@@ -98,12 +107,7 @@ export default class Routes {
         }
         return { ...result, route, params, query: { ...query, ...params } }
       },
-      { query, parsedUrl } as {
-        query: any
-        route?: Route
-        params?: any
-        parsedUrl: any
-      }
+      { parsedUrl } as MatchedRoute
     )
   }
 
