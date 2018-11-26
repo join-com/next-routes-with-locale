@@ -78,8 +78,9 @@ describe('Routes', () => {
     const routes = nextRoutes({ locale: 'en' })
       .add('a', 'en', 'pattern', 'page')
       .add('b', 'en', '/b/:b', 'page')
-      .add('c', 'en', 'pattern', 'page')
+      .add('c', 'de-ch', '/de-ch/pattern', 'page')
     expect(routes.match('/b/b?b=x&c=c').query).toMatchObject({ b: 'b', c: 'c' })
+    expect(routes.match('/de-ch/pattern').route!.name).toBe('c')
   })
 
   test('match homepage route', () => {
