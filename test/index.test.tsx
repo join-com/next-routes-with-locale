@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import NextLink from 'next/link'
 import * as React from 'react'
 import { createRenderer } from 'react-test-renderer/shallow'
@@ -148,12 +152,19 @@ describe('Link', () => {
     const { routes, route } = setupRoute(...args)
     const { Link } = routes
     const props = { children: <a>hello</a> }
+    // const props2 = { children: 'hello' }
     const testLink = (addProps: any, expected: any) => {
       const actual = renderer.render(<Link {...props} {...addProps} />) as any
       expect(actual.type).toBe(NextLink)
       expect(actual.props).toEqual({ ...props, ...expected })
     }
-    return { routes, route, testLink }
+
+    const testAnchor = (addProps: any, expected: any) => {
+      const actual = renderer.render(<Link {...props} {...addProps} />) as any
+      expect(actual.type).toBe('a')
+      expect(actual.props).toEqual({ ...props, ...expected })
+    }
+    return { routes, route, testLink, testAnchor }
   }
 
   test('with filtered params', () => {
@@ -170,6 +181,13 @@ describe('Link', () => {
     const { testLink } = setup('a', 'en')
     testLink({ href: 'b' }, { href: 'b' })
   })
+
+  test('with baseUrl', () => {
+    const { testAnchor } = setup('appBRoute', 'en', '/public', {
+      baseUrl: 'http://lvh.me:3000'
+    })
+    testAnchor({ route: 'appBRoute' }, { href: 'http://lvh.me:3000/public' })
+  })
 })
 
 const routerMethods = ['push', 'replace', 'prefetch']
@@ -184,6 +202,7 @@ describe(`Router ${routerMethods.join(', ')}`, () => {
         expect(Router[method]).toBeCalledWith(...expected)
       })
     }
+
     return { routes, route, testMethods }
   }
 
@@ -200,5 +219,19 @@ describe(`Router ${routerMethods.join(', ')}`, () => {
       ['a', { b: 'b' }, { shallow: true }],
       [href, as, { shallow: true }]
     )
+  })
+
+  test('with baseUrl', () => {
+    const { routes } = setupRoute('appBRoute', 'de-ch', '/de-ch/public/:b', {
+      baseUrl: 'http://lvh.me:3000'
+    })
+
+    const spy = jest.fn()
+    window.location.assign = spy
+
+    const Router = routes.getRouter({ push: jest.fn() })
+    Router.pushRoute('appBRoute', { b: 'b' }, 'de-ch')
+    expect(spy).toBeCalledWith('http://lvh.me:3000/de-ch/public/b')
+    expect(Router.push).not.toBeCalled()
   })
 })

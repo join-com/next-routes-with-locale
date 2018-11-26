@@ -5,6 +5,7 @@ import toQuerystring from './utils/toQuerystring'
 export interface Options {
   subdomain?: boolean
   locale?: string
+  baseUrl?: string
 }
 
 interface RouteProps {
@@ -80,7 +81,7 @@ export default class Route {
     return `${as}?${toQuerystring(qsParams)}`
   }
 
-  public getUrls(params: object) {
+  public getUrls(params: object = {}) {
     const as = this.getAs(params)
     const href = this.getHref(params)
     return { as, href }
