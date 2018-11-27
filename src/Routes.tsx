@@ -109,7 +109,7 @@ export default class Routes {
     )
   }
 
-  public findAndGetUrls(nameOrUrl: string, locale: string, params?: object) {
+  public findAndGetUrls(nameOrUrl: string, locale: string, params?: Params) {
     locale = locale || this.locale
     const foundRoute = this.findByName(nameOrUrl, locale)
     if (foundRoute) {

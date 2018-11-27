@@ -152,7 +152,6 @@ describe('Link', () => {
     const { routes, route } = setupRoute(...args)
     const { Link } = routes
     const props = { children: <a>hello</a> }
-    // const props2 = { children: 'hello' }
     const testLink = (addProps: any, expected: any) => {
       const actual = renderer.render(<Link {...props} {...addProps} />) as any
       expect(actual.type).toBe(NextLink)
