@@ -162,7 +162,7 @@ describe('Link', () => {
     const testAnchor = (addProps: any, expected: any) => {
       const actual = renderer.render(<Link {...props} {...addProps} />) as any
       expect(actual.type).toBe('a')
-      expect(actual.props).toEqual({ ...props, ...expected })
+      expect(actual.props).toMatchObject(expected)
     }
     return { routes, route, testLink, testAnchor }
   }

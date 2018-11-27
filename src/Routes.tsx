@@ -154,15 +154,16 @@ export default class Routes {
       const locale2 = locale || this.locale
 
       if (nameOrUrl) {
-        const foundData = this.findAndGetUrls(nameOrUrl, locale2, params)
-        const { route: foundRoute } = foundData
+        const foundRouteData = this.findAndGetUrls(nameOrUrl, locale2, params)
+        const { route: foundRoute } = foundRouteData
         if (foundRoute && foundRoute.options.baseUrl) {
+          const { children, ...propsWithoutChildren } = props
           return React.cloneElement(props.children, {
-            href: `${foundRoute.options.baseUrl}${foundData.urls.as}`,
-            ...newProps
+            href: `${foundRoute.options.baseUrl}${foundRouteData.urls.as}`,
+            ...propsWithoutChildren
           })
         }
-        Object.assign(newProps, foundData.urls)
+        Object.assign(newProps, foundRouteData.urls)
       }
 
       return <Link {...newProps} />
