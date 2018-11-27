@@ -11,7 +11,7 @@ interface NextRouteOptions {
 }
 
 interface Params {
-  [key: string]: string | number
+  [key: string]: any
 }
 
 type FnType = (
