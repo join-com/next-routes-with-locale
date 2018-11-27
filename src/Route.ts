@@ -66,8 +66,10 @@ export default class Route {
     const keys = Object.keys(params)
     const qsKeys = keys.filter(key => this.keyNames.indexOf(key) === -1)
 
+    const baseUrl = this.options.baseUrl
+
     if (!qsKeys.length) {
-      return as
+      return baseUrl ? `${baseUrl}${as}` : as
     }
 
     const qsParams = qsKeys.reduce(
@@ -78,12 +80,17 @@ export default class Route {
       {}
     )
 
-    return `${as}?${toQuerystring(qsParams)}`
+    const url = `${as}?${toQuerystring(qsParams)}`
+    return baseUrl ? `${baseUrl}${url}` : url
   }
 
   public getUrls(params: object = {}) {
     const as = this.getAs(params)
     const href = this.getHref(params)
     return { as, href }
+  }
+
+  public isExternal() {
+    return Boolean(this.options.baseUrl)
   }
 }

@@ -155,11 +155,14 @@ export default class Routes {
 
       if (nameOrUrl) {
         const foundRouteData = this.findAndGetUrls(nameOrUrl, locale2, params)
-        const { route: foundRoute } = foundRouteData
-        if (foundRoute && foundRoute.options.baseUrl) {
+        const {
+          route: foundRoute,
+          urls: { as }
+        } = foundRouteData
+        if (foundRoute && foundRoute.isExternal()) {
           const { children, ...propsWithoutChildren } = props
           return React.cloneElement(props.children, {
-            href: `${foundRoute.options.baseUrl}${foundRouteData.urls.as}`,
+            href: as,
             ...propsWithoutChildren
           })
         }
@@ -187,11 +190,11 @@ export default class Routes {
         route,
         urls: { as, href }
       } = this.findAndGetUrls(routeName, locale2, params)
-      if (route && route.options.baseUrl) {
+      if (route && route.isExternal()) {
         if (method === 'prefetch') {
           throw new Error('External route cannot be prefetched')
         }
-        return window.location.assign(`${route.options.baseUrl}${as}`)
+        return window.location.assign(as)
       }
       return Router[method](href, as, byName ? options2 : params)
     }
