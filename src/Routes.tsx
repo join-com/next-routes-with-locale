@@ -11,7 +11,7 @@ interface NextRouteOptions {
 }
 
 interface Params {
-  [key: string]: string | number
+  [key: string]: any
 }
 
 type FnType = (
@@ -109,12 +109,15 @@ export default class Routes {
     )
   }
 
-  public findAndGetUrls(nameOrUrl: string, locale: string, params: any) {
+  public findAndGetUrls(nameOrUrl: string, locale: string, params?: Params) {
     locale = locale || this.locale
     const foundRoute = this.findByName(nameOrUrl, locale)
-
     if (foundRoute) {
-      return { foundRoute, urls: foundRoute.getUrls(params), byName: true }
+      return {
+        route: foundRoute,
+        urls: foundRoute.getUrls(params),
+        byName: true
+      }
     } else {
       const { route, query } = this.match(nameOrUrl)
       const href = route ? route.getHref(query) : nameOrUrl
@@ -151,10 +154,19 @@ export default class Routes {
       const locale2 = locale || this.locale
 
       if (nameOrUrl) {
-        Object.assign(
-          newProps,
-          this.findAndGetUrls(nameOrUrl, locale2, params).urls
-        )
+        const foundRouteData = this.findAndGetUrls(nameOrUrl, locale2, params)
+        const {
+          route: foundRoute,
+          urls: { as }
+        } = foundRouteData
+        if (foundRoute && foundRoute.isExternal()) {
+          const { children, ...propsWithoutChildren } = props
+          return React.cloneElement(props.children, {
+            href: as,
+            ...propsWithoutChildren
+          })
+        }
+        Object.assign(newProps, foundRouteData.urls)
       }
 
       return <Link {...newProps} />
@@ -165,7 +177,7 @@ export default class Routes {
 
   public getRouter(Router: RouterType) {
     const wrap = (method: string) => (
-      route: string,
+      routeName: string,
       params: any,
       locale: string | NextRouteOptions,
       options: NextRouteOptions
@@ -175,8 +187,15 @@ export default class Routes {
 
       const {
         byName,
+        route,
         urls: { as, href }
-      } = this.findAndGetUrls(route, locale2, params)
+      } = this.findAndGetUrls(routeName, locale2, params)
+      if (route && route.isExternal()) {
+        if (method === 'prefetch') {
+          throw new Error('External route cannot be prefetched')
+        }
+        return window.location.assign(as)
+      }
       return Router[method](href, as, byName ? options2 : params)
     }
 
