@@ -9,15 +9,22 @@ import nextRoutes from '../src'
 
 const renderer = createRenderer()
 
-const setupRoute = (...args: any[]) => {
-  const routes = (nextRoutes({ locale: 'en' }) as any).add(...args)
+interface ISetupOptions {
+  locale: string
+  fallbackLocale?: string
+}
+
+const setupRoute = (opts: ISetupOptions = { locale: 'en' }) => (
+  ...args: any[]
+) => {
+  const routes = (nextRoutes(opts) as any).add(...args)
   const route = routes.routes[routes.routes.length - 1]
   return { routes, route }
 }
 
 describe('Routes', () => {
   const setup = (...args: any[]) => {
-    const { routes, route } = setupRoute(...args)
+    const { routes, route } = setupRoute()(...args)
     const testRoute = (expected: any) => expect(route).toMatchObject(expected)
     return { routes, route, testRoute }
   }
@@ -88,7 +95,7 @@ describe('Routes', () => {
   })
 
   test('match homepage route', () => {
-    const { routes, route } = setupRoute('homepage', 'en')
+    const { routes, route } = setupRoute()('homepage', 'en')
     expect(routes.match('/').route).toMatchObject(route)
   })
 
@@ -148,8 +155,8 @@ describe('Request handler', () => {
 })
 
 describe('Link', () => {
-  const setup = (...args: any[]) => {
-    const { routes, route } = setupRoute(...args)
+  const setup = (opts?: ISetupOptions) => (...args: any[]) => {
+    const { routes, route } = setupRoute(opts)(...args)
     const { Link } = routes
     const props = { children: <a>hello</a> }
     const testLink = (addProps: any, expected: any) => {
@@ -167,25 +174,37 @@ describe('Link', () => {
   }
 
   test('with filtered params', () => {
-    const { testLink } = setup('a', 'en', '/a/:b')
+    const { testLink } = setup()('a', 'en', '/a/:b')
     testLink({ href: '/', params: { b: 'b' } }, { href: '/' })
   })
 
   test('with name and params', () => {
-    const { route, testLink } = setup('a', 'en', '/a/:b')
+    const { route, testLink } = setup()('a', 'en', '/a/:b')
     testLink({ route: 'a', params: { b: 'b' } }, route.getUrls({ b: 'b' }))
   })
 
   test('with route not found', () => {
-    const { testLink } = setup('a', 'en')
+    const { testLink } = setup()('a', 'en')
     testLink({ href: 'b' }, { href: 'b' })
   })
 
   test('with baseUrl', () => {
-    const { testAnchor } = setup('appBRoute', 'en', '/public', {
+    const { testAnchor } = setup()('appBRoute', 'en', '/public', {
       baseUrl: 'http://lvh.me:3000'
     })
     testAnchor({ route: 'appBRoute' }, { href: 'http://lvh.me:3000/public' })
+  })
+
+  test('with fallback locale', () => {
+    const { testLink } = setup({ locale: 'de', fallbackLocale: 'en' })(
+      'route',
+      'en',
+      '/public'
+    )
+    testLink(
+      { route: 'route', locale: 'de' },
+      { as: '/public', href: '/route?' }
+    )
   })
 })
 
@@ -193,7 +212,7 @@ const routerMethods = ['push', 'replace', 'prefetch']
 
 describe(`Router ${routerMethods.join(', ')}`, () => {
   const setup = (...args: any[]) => {
-    const { routes, route } = setupRoute(...args)
+    const { routes, route } = setupRoute()(...args)
     const testMethods = (otherArgs: any[], expected: any) => {
       routerMethods.forEach(method => {
         const Router = routes.getRouter({ [method]: jest.fn() })
@@ -221,7 +240,7 @@ describe(`Router ${routerMethods.join(', ')}`, () => {
   })
 
   test('with baseUrl', () => {
-    const { routes } = setupRoute('appBRoute', 'de-ch', '/de-ch/public/:b', {
+    const { routes } = setupRoute()('appBRoute', 'de-ch', '/de-ch/public/:b', {
       baseUrl: 'http://lvh.me:3000'
     })
 

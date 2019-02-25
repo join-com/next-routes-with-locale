@@ -20,7 +20,7 @@ Create `routes.js` inside your project:
 ```typescript
 import nextRoutes from '@join-com/next-routes-with-locale'
 
-const routes = nextRoutes({ locale: 'en' })
+const routes = nextRoutes({ locale: 'en', fallbackLocale: 'en' })
 
 routes
   .add('about', 'en', '/about')
