@@ -37,6 +37,7 @@ type LinkType = React.SFC<ExtendedLinkProps>
 
 interface ConstructorProps {
   locale: string
+  fallbackLocale?: string
 }
 
 interface MatchedRoute {
@@ -51,12 +52,14 @@ export default class Routes {
   public Link: LinkType
   public Router: RouterType
   public locale: string
+  public fallbackLocale?: string
 
-  constructor({ locale }: ConstructorProps) {
+  constructor({ locale, fallbackLocale }: ConstructorProps) {
     this.routes = []
     this.Link = this.getLink(NextLink)
     this.Router = this.getRouter(NextRouter as RouterType)
     this.locale = locale
+    this.fallbackLocale = fallbackLocale
   }
 
   public add(
@@ -90,6 +93,23 @@ export default class Routes {
     )[0]
   }
 
+  public findByNameWithFallback(name: string, locale: string) {
+    const route = this.findByName(name, locale)
+    if (route) {
+      return route
+    }
+
+    if (!this.fallbackLocale) {
+      return
+    }
+
+    if (locale === this.fallbackLocale) {
+      return
+    }
+
+    return this.findByName(name, this.fallbackLocale)
+  }
+
   public match(url: string): MatchedRoute {
     const parsedUrl = parse(url, true)
     const { pathname, query } = parsedUrl
@@ -111,7 +131,7 @@ export default class Routes {
 
   public findAndGetUrls(nameOrUrl: string, locale: string, params?: Params) {
     locale = locale || this.locale
-    const foundRoute = this.findByName(nameOrUrl, locale)
+    const foundRoute = this.findByNameWithFallback(nameOrUrl, locale)
     if (foundRoute) {
       return {
         route: foundRoute,
