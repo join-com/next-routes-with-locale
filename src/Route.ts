@@ -4,7 +4,6 @@ import toQuerystring from './utils/toQuerystring'
 
 export interface Options {
   subdomain?: boolean
-  locale?: string
   baseUrl?: string
 }
 
