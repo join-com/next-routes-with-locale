@@ -12,6 +12,7 @@ const renderer = createRenderer()
 interface ISetupOptions {
   locale: string
   fallbackLocale?: string
+  prefetch?: boolean
 }
 
 const setupRoute = (opts: ISetupOptions = { locale: 'en' }) => (
@@ -175,17 +176,20 @@ describe('Link', () => {
 
   test('with filtered params', () => {
     const { testLink } = setup()('a', 'en', '/a/:b')
-    testLink({ href: '/', params: { b: 'b' } }, { href: '/' })
+    testLink({ href: '/', params: { b: 'b' } }, { href: '/', prefetch: false })
   })
 
   test('with name and params', () => {
     const { route, testLink } = setup()('a', 'en', '/a/:b')
-    testLink({ route: 'a', params: { b: 'b' } }, route.getUrls({ b: 'b' }))
+    testLink(
+      { route: 'a', params: { b: 'b' } },
+      { ...route.getUrls({ b: 'b' }), prefetch: false }
+    )
   })
 
   test('with route not found', () => {
     const { testLink } = setup()('a', 'en')
-    testLink({ href: 'b' }, { href: 'b' })
+    testLink({ href: 'b' }, { href: 'b', prefetch: false })
   })
 
   test('with baseUrl', () => {
@@ -203,7 +207,18 @@ describe('Link', () => {
     )
     testLink(
       { route: 'route', locale: 'de' },
-      { as: '/public', href: '/route?' }
+      { as: '/public', href: '/route?', prefetch: false }
+    )
+  })
+
+  test('with prefetch override', () => {
+    const { testLink } = setup({
+      locale: 'de',
+      fallbackLocale: 'en'
+    })('route', 'en', '/public')
+    testLink(
+      { route: 'route', locale: 'de', prefetch: true },
+      { as: '/public', href: '/route?', prefetch: true }
     )
   })
 })
