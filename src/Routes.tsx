@@ -27,13 +27,15 @@ interface RouterType extends SingletonRouter {
   prefetchRoute: FnType
 }
 
-interface ExtendedLinkProps extends LinkProps {
+type MakePartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+interface ExtendedLinkProps extends MakePartial<LinkProps, 'href'> {
   route: string
   locale?: string
   to?: string
   params?: Params
 }
-type LinkType = React.SFC<ExtendedLinkProps>
+type LinkType = React.FC<ExtendedLinkProps>
 
 interface ConstructorProps {
   locale: string
@@ -167,7 +169,7 @@ export default class Routes {
   }
 
   public getLink(Link: typeof NextLink) {
-    const LinkRoutes: React.SFC<ExtendedLinkProps> = props => {
+    const LinkRoutes: React.FC<ExtendedLinkProps> = props => {
       const { route, params, locale, to, ...newProps } = props
       const nameOrUrl = route || to
 
@@ -181,7 +183,8 @@ export default class Routes {
         } = foundRouteData
         if (foundRoute && foundRoute.isExternal()) {
           const { children, ...propsWithoutChildren } = props
-          return React.cloneElement(props.children, {
+
+          return React.cloneElement(props.children as React.ReactElement, {
             href: as,
             ...propsWithoutChildren
           })
@@ -189,7 +192,7 @@ export default class Routes {
         Object.assign(newProps, foundRouteData.urls)
       }
 
-      return <Link {...newProps} />
+      return <Link prefetch={false} {...newProps} />
     }
 
     return LinkRoutes
