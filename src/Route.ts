@@ -3,6 +3,10 @@ import pathToRegexp from 'path-to-regexp'
 import toQuerystring from './utils/toQuerystring'
 import addSubdomain from './utils/addSubdomain'
 
+export interface EventChangeOptions {
+  shallow?: boolean
+}
+
 export interface Options {
   subdomain?: boolean
   baseUrl?: string
@@ -16,7 +20,7 @@ interface RouteProps {
   options?: Options
 }
 
-export interface GenerateOptions {
+export interface GenerateOptions extends EventChangeOptions {
   subdomain?: string
 }
 
@@ -98,7 +102,11 @@ export default class Route {
   }
 
   private getBaseUrl(options?: GenerateOptions) {
-    if (this.options.subdomain && (!options || !options.subdomain)) {
+    if (
+      this.options.subdomain &&
+      this.options.baseUrl &&
+      (!options || !options.subdomain)
+    ) {
       throw new Error(`Subdomain is required for route: ${this.name}`)
     }
 

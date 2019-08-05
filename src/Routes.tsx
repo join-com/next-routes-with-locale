@@ -4,13 +4,11 @@ import { ParsedUrlQuery } from 'querystring'
 import * as React from 'react'
 import { parse, UrlWithParsedQuery } from 'url'
 
-import Route, { Options as RouteOptions, GenerateOptions } from './Route'
-
-interface NextRouteOptions {
-  shallow: boolean
-}
-
-interface IMethodOptions extends NextRouteOptions, GenerateOptions {}
+import Route, {
+  Options as RouteOptions,
+  GenerateOptions,
+  EventChangeOptions
+} from './Route'
 
 interface Params {
   [key: string]: any
@@ -19,8 +17,8 @@ interface Params {
 type FnType = (
   route: string,
   params?: Params,
-  localeOrOptions?: string | IMethodOptions,
-  options?: IMethodOptions
+  localeOrOptions?: string | GenerateOptions,
+  options?: GenerateOptions
 ) => void
 
 interface RouterType extends SingletonRouter {
@@ -137,7 +135,7 @@ export default class Routes {
     nameOrUrl: string,
     locale: string,
     params?: Params,
-    options?: GenerateOptions
+    options?: EventChangeOptions | GenerateOptions
   ) {
     locale = locale || this.locale
     const foundRoute = this.findByNameWithFallback(nameOrUrl, locale)
@@ -209,8 +207,8 @@ export default class Routes {
     const wrap = (method: string) => (
       routeName: string,
       params: any,
-      locale: string | IMethodOptions,
-      options: IMethodOptions
+      locale: string | GenerateOptions,
+      options: GenerateOptions
     ) => {
       const locale2 = typeof locale === 'string' ? locale : this.locale
       const options2 = typeof locale === 'object' ? locale : options
