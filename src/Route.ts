@@ -107,7 +107,7 @@ export default class Route {
       this.options.baseUrl &&
       (!options || !options.subdomain)
     ) {
-      throw new Error(`Subdomain is required for route: ${this.name}`)
+      throw new Error(`Subdomain is required for external route: ${this.name}`)
     }
 
     if (this.options.baseUrl && options && options.subdomain) {
