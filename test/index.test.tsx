@@ -287,4 +287,64 @@ describe(`Router ${routerMethods.join(', ')}`, () => {
     expect(spy).toBeCalledWith('http://lvh.me:3000/de-ch/public/b')
     expect(Router.push).not.toBeCalled()
   })
+
+  test('with baseUrl and subdomain', () => {
+    const { routes } = setupRoute()('appBRoute', undefined, '/public/:b', {
+      subdomain: true,
+      baseUrl: 'http://lvh.me:3000'
+    })
+
+    const spy = jest.fn()
+    window.location.assign = spy
+
+    const Router = routes.getRouter({ push: jest.fn() })
+    Router.pushRoute(
+      'appBRoute',
+      { b: 'b' },
+      {
+        subdomain: 'companyx'
+      }
+    )
+    expect(spy).toBeCalledWith('http://companyx.lvh.me:3000/public/b')
+    expect(Router.push).not.toBeCalled()
+  })
+
+  test('with baseUrl, subdomain and locale', () => {
+    const { routes } = setupRoute()('appBRoute', 'de-ch', '/de-ch/public/:b', {
+      subdomain: true,
+      baseUrl: 'http://lvh.me:3000'
+    })
+
+    const spy = jest.fn()
+    window.location.assign = spy
+
+    const Router = routes.getRouter({ push: jest.fn() })
+    Router.pushRoute('appBRoute', { b: 'b' }, 'de-ch', {
+      subdomain: 'companyx'
+    })
+    expect(spy).toBeCalledWith('http://companyx.lvh.me:3000/de-ch/public/b')
+    expect(Router.push).not.toBeCalled()
+  })
+
+  test('with baseUrl, subdomain and locale and missing subdomain', () => {
+    expect(() => {
+      const { routes } = setupRoute()(
+        'appBRoute',
+        'de-ch',
+        '/de-ch/public/:b',
+        {
+          subdomain: true,
+          baseUrl: 'http://lvh.me:3000'
+        }
+      )
+
+      const spy = jest.fn()
+      window.location.assign = spy
+
+      const Router = routes.getRouter({ push: jest.fn() })
+      Router.pushRoute('appBRoute', { b: 'b' }, 'de-ch')
+      expect(true).toBe(false)
+      expect(Router.push).not.toBeCalled()
+    }).toThrowError('Subdomain is required for external route: appBRoute')
+  })
 })
