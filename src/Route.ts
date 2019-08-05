@@ -1,6 +1,7 @@
 import pathToRegexp from 'path-to-regexp'
 
 import toQuerystring from './utils/toQuerystring'
+import addSubdomain from './utils/addSubdomain'
 
 export interface Options {
   subdomain?: boolean
@@ -13,6 +14,10 @@ interface RouteProps {
   locale: string
   pattern: string
   options?: Options
+}
+
+export interface GenerateOptions {
+  subdomain?: string
 }
 
 export default class Route {
@@ -60,12 +65,11 @@ export default class Route {
     return `${this.page}?${toQuerystring(params)}`
   }
 
-  public getAs(params: object = {}) {
+  public getAs(params: object = {}, options?: GenerateOptions) {
+    const baseUrl = this.getBaseUrl(options)
     const as = this.toPath(params) || '/'
     const keys = Object.keys(params)
     const qsKeys = keys.filter(key => this.keyNames.indexOf(key) === -1)
-
-    const baseUrl = this.options.baseUrl
 
     if (!qsKeys.length) {
       return baseUrl ? `${baseUrl}${as}` : as
@@ -83,13 +87,25 @@ export default class Route {
     return baseUrl ? `${baseUrl}${url}` : url
   }
 
-  public getUrls(params: object = {}) {
-    const as = this.getAs(params)
+  public getUrls(params: object = {}, options?: GenerateOptions) {
+    const as = this.getAs(params, options)
     const href = this.getHref(params)
     return { as, href }
   }
 
   public isExternal() {
     return Boolean(this.options.baseUrl)
+  }
+
+  private getBaseUrl(options?: GenerateOptions) {
+    if (this.options.subdomain && (!options || !options.subdomain)) {
+      throw new Error(`Subdomain is required for route: ${this.name}`)
+    }
+
+    if (this.options.baseUrl && options && options.subdomain) {
+      return addSubdomain(options.subdomain, this.options.baseUrl)
+    }
+
+    return this.options.baseUrl
   }
 }

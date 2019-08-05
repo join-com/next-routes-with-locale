@@ -4,11 +4,13 @@ import { ParsedUrlQuery } from 'querystring'
 import * as React from 'react'
 import { parse, UrlWithParsedQuery } from 'url'
 
-import Route, { Options as RouteOptions } from './Route'
+import Route, { Options as RouteOptions, GenerateOptions } from './Route'
 
 interface NextRouteOptions {
   shallow: boolean
 }
+
+interface IMethodOptions extends NextRouteOptions, GenerateOptions {}
 
 interface Params {
   [key: string]: any
@@ -17,8 +19,8 @@ interface Params {
 type FnType = (
   route: string,
   params?: Params,
-  localeOrOptions?: string | NextRouteOptions,
-  options?: NextRouteOptions
+  localeOrOptions?: string | IMethodOptions,
+  options?: IMethodOptions
 ) => void
 
 interface RouterType extends SingletonRouter {
@@ -131,13 +133,18 @@ export default class Routes {
     )
   }
 
-  public findAndGetUrls(nameOrUrl: string, locale: string, params?: Params) {
+  public findAndGetUrls(
+    nameOrUrl: string,
+    locale: string,
+    params?: Params,
+    options?: GenerateOptions
+  ) {
     locale = locale || this.locale
     const foundRoute = this.findByNameWithFallback(nameOrUrl, locale)
     if (foundRoute) {
       return {
         route: foundRoute,
-        urls: foundRoute.getUrls(params),
+        urls: foundRoute.getUrls(params, options),
         byName: true
       }
     } else {
@@ -202,8 +209,8 @@ export default class Routes {
     const wrap = (method: string) => (
       routeName: string,
       params: any,
-      locale: string | NextRouteOptions,
-      options: NextRouteOptions
+      locale: string | IMethodOptions,
+      options: IMethodOptions
     ) => {
       const locale2 = typeof locale === 'string' ? locale : this.locale
       const options2 = typeof locale === 'object' ? locale : options
@@ -212,7 +219,7 @@ export default class Routes {
         byName,
         route,
         urls: { as, href }
-      } = this.findAndGetUrls(routeName, locale2, params)
+      } = this.findAndGetUrls(routeName, locale2, params, options2)
       if (route && route.isExternal()) {
         if (method === 'prefetch') {
           throw new Error('External route cannot be prefetched')
