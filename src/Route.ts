@@ -1,7 +1,7 @@
 import pathToRegexp from 'path-to-regexp'
 
-import toQuerystring from './utils/toQuerystring'
 import addSubdomain from './utils/addSubdomain'
+import toQuerystring from './utils/toQuerystring'
 
 export interface EventChangeOptions {
   shallow?: boolean

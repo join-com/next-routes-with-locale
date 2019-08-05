@@ -5,9 +5,9 @@ import * as React from 'react'
 import { parse, UrlWithParsedQuery } from 'url'
 
 import Route, {
-  Options as RouteOptions,
+  EventChangeOptions,
   GenerateOptions,
-  EventChangeOptions
+  Options as RouteOptions
 } from './Route'
 
 interface Params {
