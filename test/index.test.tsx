@@ -103,7 +103,21 @@ describe('Routes', () => {
   test('generate urls from params', () => {
     const { route } = setup('a', 'en', '/a/:b/:c+')
     const params = { b: 'b', c: [1, 2], d: 'd' }
-    const expected = { as: '/a/b/1/2?d=d', href: '/a?b=b&c=1%2F2&d=d' }
+    const expected = {
+      as: '/a/b/1/2?d=d',
+      href: '/a?b=b&c%5B0%5D=1&c%5B1%5D=2&d=d'
+    }
+    expect(route.getUrls(params)).toEqual(expected)
+    expect(setup('a', 'en').route.getUrls()).toEqual({ as: '/a', href: '/a?' })
+  })
+
+  test('generate urls from nested params', () => {
+    const { route } = setup('a', 'en', '/a/:b/:c+')
+    const params = { b: 'b', c: [1, 2], d: 'd', e: { f: 'g' } }
+    const expected = {
+      as: '/a/b/1/2?d=d&e%5Bf%5D=g',
+      href: '/a?b=b&c%5B0%5D=1&c%5B1%5D=2&d=d&e%5Bf%5D=g'
+    }
     expect(route.getUrls(params)).toEqual(expected)
     expect(setup('a', 'en').route.getUrls()).toEqual({ as: '/a', href: '/a?' })
   })
