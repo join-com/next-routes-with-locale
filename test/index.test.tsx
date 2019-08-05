@@ -170,6 +170,8 @@ describe('Link', () => {
       const actual = renderer.render(<Link {...props} {...addProps} />) as any
       expect(actual.type).toBe('a')
       expect(actual.props).toMatchObject(expected)
+
+      return actual
     }
     return { routes, route, testLink, testAnchor }
   }
@@ -197,6 +199,24 @@ describe('Link', () => {
       baseUrl: 'http://lvh.me:3000'
     })
     testAnchor({ route: 'appBRoute' }, { href: 'http://lvh.me:3000/public' })
+  })
+
+  test('with baseUrl and params', () => {
+    const { testAnchor } = setup()('appBRoute', 'en', '/public', {
+      baseUrl: 'http://lvh.me:3000'
+    })
+
+    const actual = testAnchor(
+      { route: 'appBRoute', params: { a: 'b' } },
+      {
+        href: 'http://lvh.me:3000/public?a=b'
+      }
+    )
+
+    expect(actual.props).toEqual({
+      children: 'hello',
+      href: 'http://lvh.me:3000/public?a=b'
+    })
   })
 
   test('with fallback locale', () => {

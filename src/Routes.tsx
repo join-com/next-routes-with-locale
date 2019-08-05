@@ -182,7 +182,7 @@ export default class Routes {
           urls: { as }
         } = foundRouteData
         if (foundRoute && foundRoute.isExternal()) {
-          const { children, ...propsWithoutChildren } = props
+          const { children, ...propsWithoutChildren } = newProps
 
           return React.cloneElement(props.children as React.ReactElement, {
             href: as,
