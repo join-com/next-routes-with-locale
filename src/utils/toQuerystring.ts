@@ -1,10 +1,3 @@
-export default (obj: any) =>
-  Object.keys(obj)
-    .map(key => {
-      let value = obj[key]
-      if (Array.isArray(value)) {
-        value = value.join('/')
-      }
-      return [encodeURIComponent(key), encodeURIComponent(value)].join('=')
-    })
-    .join('&')
+import stringify from 'qs/lib/stringify'
+
+export default (obj: any) => stringify(obj)

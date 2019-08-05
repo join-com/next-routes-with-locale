@@ -34,11 +34,13 @@
     ]
   },
   "dependencies": {
-    "path-to-regexp": "^2.4.0"
+    "path-to-regexp": "^2.4.0",
+    "qs": "^6.7.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
     "@types/node": "^12.6.8",
+    "@types/qs": "^6.5.3",
     "@types/react": "^16.8.23",
     "@types/react-test-renderer": "^16.8.2",
     "del-cli": "^2.0.0",
