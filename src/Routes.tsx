@@ -19,7 +19,7 @@ type FnType = (
   params?: Params,
   localeOrOptions?: string | GenerateOptions,
   options?: GenerateOptions
-) => void
+) => Promise<boolean>
 
 interface RouterType extends SingletonRouter {
   pushRoute: FnType
