@@ -1,10 +1,14 @@
 import Routes from './Routes'
 
-interface ConstructorProps {
-  locale: string
-  fallbackLocale?: string
+interface ConstructorProps<Locale extends string> {
+  locale: Locale
+  fallbackLocale?: Locale
 }
 
 export { default as Route, Options as RouteOptions } from './Route'
 
-export default (opts: ConstructorProps) => new Routes(opts)
+const nextRoutes = <RouteName extends string, Locale extends string = string>(
+  opts: ConstructorProps<Locale>
+) => new Routes<RouteName, Locale>(opts)
+
+export default nextRoutes
