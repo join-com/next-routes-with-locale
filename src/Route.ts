@@ -12,10 +12,10 @@ export interface Options {
   baseUrl?: string
 }
 
-interface RouteProps {
-  name: string
+interface RouteProps<RouteName extends string, Locale extends string> {
+  name: RouteName
   page: string
-  locale: string
+  locale: Locale
   pattern: string
   options?: Options
 }
@@ -24,9 +24,12 @@ export interface GenerateOptions extends EventChangeOptions {
   subdomain?: string
 }
 
-export default class Route {
-  public name: string
-  public locale: string
+export default class Route<
+  RouteName extends string,
+  Locale extends string = string
+> {
+  public name: RouteName
+  public locale: Locale
   public pattern: string
   public page: string
   public regex: RegExp
@@ -35,7 +38,13 @@ export default class Route {
   public toPath: pathToRegexp.PathFunction
   public options: Options
 
-  constructor({ name, locale, pattern, page, options }: RouteProps) {
+  constructor({
+    name,
+    locale,
+    pattern,
+    page,
+    options
+  }: RouteProps<RouteName, Locale>) {
     if (!name && !page) {
       throw new Error(`Missing page to render for route "${pattern}"`)
     }

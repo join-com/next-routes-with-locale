@@ -14,17 +14,17 @@ interface Params {
   [key: string]: any
 }
 
-type FnType = (
-  route: string,
+type FnType<RouteName extends string> = (
+  route: RouteName,
   params?: Params,
   localeOrOptions?: string | GenerateOptions,
   options?: GenerateOptions
 ) => Promise<boolean>
 
-interface RouterType extends SingletonRouter {
-  pushRoute: FnType
-  replaceRoute: FnType
-  prefetchRoute: FnType
+interface RouterType<RouteName extends string> extends SingletonRouter {
+  pushRoute: FnType<RouteName>
+  replaceRoute: FnType<RouteName>
+  prefetchRoute: FnType<RouteName>
 }
 
 type MakePartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
@@ -37,36 +37,36 @@ interface ExtendedLinkProps extends MakePartial<LinkProps, 'href'> {
 }
 type LinkType = React.FC<ExtendedLinkProps>
 
-interface ConstructorProps {
-  locale: string
-  fallbackLocale?: string
+interface ConstructorProps<Locale extends string> {
+  locale: Locale
+  fallbackLocale?: Locale
 }
 
-interface MatchedRoute {
+interface MatchedRoute<RouteName extends string, Locale extends string> {
   query?: ParsedUrlQuery
-  route?: Route
+  route?: Route<RouteName, Locale>
   params?: Params
   parsedUrl: UrlWithParsedQuery
 }
 
-export default class Routes {
-  public routes: Route[]
+export default class Routes<RouteName extends string, Locale extends string> {
+  public routes: Route<RouteName, Locale>[]
   public Link: LinkType
-  public Router: RouterType
-  public locale: string
+  public Router: RouterType<RouteName>
+  public locale: Locale
   public fallbackLocale?: string
 
-  constructor({ locale, fallbackLocale }: ConstructorProps) {
+  constructor({ locale, fallbackLocale }: ConstructorProps<Locale>) {
     this.routes = []
     this.Link = this.getLink(NextLink)
-    this.Router = this.getRouter(NextRouter as RouterType)
+    this.Router = this.getRouter(NextRouter as RouterType<RouteName>)
     this.locale = locale
     this.fallbackLocale = fallbackLocale
   }
 
   public add(
-    name: string,
-    locale: string = this.locale,
+    name: RouteName,
+    locale: Locale = this.locale,
     pattern: string,
     page: string | RouteOptions,
     options?: RouteOptions
@@ -84,7 +84,7 @@ export default class Routes {
     return this
   }
 
-  public setLocale(locale: string) {
+  public setLocale(locale: Locale) {
     this.locale = locale
   }
 
@@ -112,7 +112,7 @@ export default class Routes {
     return this.findByName(name, this.fallbackLocale)
   }
 
-  public match(url: string): MatchedRoute {
+  public match(url: string): MatchedRoute<RouteName, Locale> {
     const parsedUrl = parse(url, true)
     const { pathname, query } = parsedUrl
 
@@ -127,7 +127,7 @@ export default class Routes {
         }
         return { ...result, route, params, query: { ...query, ...params } }
       },
-      { parsedUrl } as MatchedRoute
+      { parsedUrl } as MatchedRoute<RouteName, Locale>
     )
   }
 
@@ -203,7 +203,7 @@ export default class Routes {
     return LinkRoutes
   }
 
-  public getRouter(Router: RouterType) {
+  public getRouter(Router: RouterType<RouteName>) {
     const wrap = (method: string) => (
       routeName: string,
       params: any,

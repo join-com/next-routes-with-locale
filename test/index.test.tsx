@@ -87,7 +87,7 @@ describe('Routes', () => {
   })
 
   test('match and merge params into query', () => {
-    const routes = nextRoutes({ locale: 'en' })
+    const routes = nextRoutes<'a' | 'b' | 'c', 'en' | 'de-ch'>({ locale: 'en' })
       .add('a', 'en', 'pattern', 'page')
       .add('b', 'en', '/b/:b', 'page')
       .add('c', 'de-ch', '/de-ch/pattern', 'page')
@@ -125,7 +125,9 @@ describe('Routes', () => {
 
 describe('Request handler', () => {
   const setup = (url: string) => {
-    const routes = nextRoutes({ locale: 'en' })
+    const routes = nextRoutes<'test' | 'a', 'en-gb' | 'en' | 'en-us'>({
+      locale: 'en'
+    })
     const nextHandler = jest.fn()
     const app = { getRequestHandler: () => nextHandler, render: jest.fn() }
     return { app, routes, req: { url }, res: {} }
@@ -141,7 +143,7 @@ describe('Request handler', () => {
   })
 
   test('find route and test locale is set correctly', () => {
-    const routes = nextRoutes({ locale: 'en' })
+    const routes = nextRoutes<'test', 'en' | 'cs'>({ locale: 'en' })
     const app = { getRequestHandler: jest.fn(), render: jest.fn() }
     const req = { url: '/cs/test' } as any
 
