@@ -50,7 +50,7 @@ interface MatchedRoute<RouteName extends string, Locale extends string> {
 }
 
 export default class Routes<RouteName extends string, Locale extends string> {
-  public routes: Route<RouteName, Locale>[]
+  public routes: Array<Route<RouteName, Locale>>
   public Link: LinkType
   public Router: RouterType<RouteName>
   public locale: Locale
