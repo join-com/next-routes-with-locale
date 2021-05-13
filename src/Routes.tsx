@@ -21,7 +21,7 @@ type FnType<RouteName extends string> = (
   options?: GenerateOptions
 ) => Promise<boolean>
 
-interface RouterType<RouteName extends string> extends SingletonRouter {
+export interface RouterType<RouteName extends string> extends SingletonRouter {
   pushRoute: FnType<RouteName>
   replaceRoute: FnType<RouteName>
   prefetchRoute: FnType<RouteName>
@@ -29,13 +29,14 @@ interface RouterType<RouteName extends string> extends SingletonRouter {
 
 type MakePartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-interface ExtendedLinkProps extends MakePartial<LinkProps, 'href'> {
-  route: string
+export interface ExtendedLinkProps<RouteName>
+  extends MakePartial<LinkProps, 'href'> {
+  route: RouteName
   locale?: string
   to?: string
   params?: Params
 }
-type LinkType = React.FC<ExtendedLinkProps>
+type LinkType<RouteName> = React.FC<ExtendedLinkProps<RouteName>>
 
 interface ConstructorProps<Locale extends string> {
   locale: Locale
@@ -51,7 +52,7 @@ interface MatchedRoute<RouteName extends string, Locale extends string> {
 
 export default class Routes<RouteName extends string, Locale extends string> {
   public routes: Array<Route<RouteName, Locale>>
-  public Link: LinkType
+  public Link: LinkType<RouteName>
   public Router: RouterType<RouteName>
   public locale: Locale
   public fallbackLocale?: string
@@ -132,7 +133,7 @@ export default class Routes<RouteName extends string, Locale extends string> {
   }
 
   public findAndGetUrls(
-    nameOrUrl: string,
+    nameOrUrl: string | RouteName,
     locale: string,
     params?: Params,
     options?: EventChangeOptions | GenerateOptions
@@ -174,7 +175,7 @@ export default class Routes<RouteName extends string, Locale extends string> {
   }
 
   public getLink(Link: typeof NextLink) {
-    const LinkRoutes: React.FC<ExtendedLinkProps> = props => {
+    const LinkRoutes: React.FC<ExtendedLinkProps<RouteName>> = props => {
       const { route, params, locale, to, ...newProps } = props
       const nameOrUrl = route || to
 
@@ -205,7 +206,7 @@ export default class Routes<RouteName extends string, Locale extends string> {
 
   public getRouter(Router: RouterType<RouteName>) {
     const wrap = (method: string) => (
-      routeName: string,
+      routeName: RouteName,
       params: any,
       locale: string | GenerateOptions,
       options: GenerateOptions
